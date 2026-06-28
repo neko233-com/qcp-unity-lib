@@ -18,7 +18,7 @@ namespace Neko233.Qcp.Unity
         public static QcpClient CreateDefault()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return new QcpClient(new QcpWebGLTransport());
+            return new QcpClient(new QcpWeChatMiniGameTransport());
 #else
             return new QcpClient(new QcpNativeUdpTransport());
 #endif

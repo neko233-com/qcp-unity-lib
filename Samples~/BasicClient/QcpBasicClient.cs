@@ -6,7 +6,7 @@ namespace Neko233.Qcp.Unity.Samples
 {
     public sealed class QcpBasicClient : MonoBehaviour
     {
-        [SerializeField] private string endpoint = "wss://localhost:9000/qcp";
+        [SerializeField] private string endpoint = "qcp://127.0.0.1:7000";
 
         private QcpClient client;
 

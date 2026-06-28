@@ -16,20 +16,30 @@ namespace Neko233.Qcp.Unity
 
         [DllImport("__Internal")]
         private static extern int QCP_JS_Close();
+
+        [DllImport("__Internal")]
+        private static extern int QCP_JS_GetCapabilities();
 #endif
 
         public bool IsConnected { get; private set; }
 
+        public static QcpPlatformProfile GetPlatformProfile()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var capabilities = (QcpTransportCapabilities)QCP_JS_GetCapabilities();
+            return new QcpPlatformProfile(QcpPlatformKind.WebGL, QcpTransportKind.Unsupported, capabilities, 1200);
+#else
+            return new QcpPlatformProfile(QcpPlatformKind.WebGL, QcpTransportKind.Unsupported, QcpTransportCapabilities.None, 1200);
+#endif
+        }
+
         public Task ConnectAsync(string endpoint, CancellationToken cancellationToken = default)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            var rc = QCP_JS_Connect(endpoint);
-            IsConnected = rc == 0;
-            if (!IsConnected) throw new InvalidOperationException($"QCP WebGL connect failed: {rc}");
+            throw new PlatformNotSupportedException("QCP requires datagram UDP. Standard browser WebGL does not expose UDP; use WeChat Mini Game UDP or a native platform.");
 #else
-            IsConnected = true;
+            throw new PlatformNotSupportedException("QCP WebGL transport is only a compile-time placeholder. Use QcpWeChatMiniGameTransport for WeChat Mini Game UDP.");
 #endif
-            return Task.CompletedTask;
         }
 
         public Task SendAsync(ReadOnlyMemory<byte> payload, QcpSendOptions options, CancellationToken cancellationToken = default)

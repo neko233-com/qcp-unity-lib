@@ -1,14 +1,14 @@
 {
   "name": "com.neko233.qcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "QCP Unity",
-  "description": "Unity client package for QCP semantic transport: REALTIME, CRITICAL, BATCH, with WebGL and WeChat Mini Game bridge support.",
+  "description": "Unity client package for QCP semantic transport: REALTIME, CRITICAL, BATCH, with native UDP and WeChat Mini Game UDP bridge support.",
   "unity": "2021.3",
   "keywords": [
     "qcp",
     "udp",
     "network",
-    "webgl",
+    "datagram",
     "wechat",
     "game"
   ],

@@ -2,7 +2,7 @@
 
 Unity package for QCP transport integration.
 
-QCP stays at the protocol layer. Game code decides message meaning; this package provides stream semantics, platform transport selection, and WebGL / WeChat Mini Game bridge hooks.
+QCP stays at the protocol layer. Game code decides message meaning; this package provides stream semantics, platform transport selection, and WeChat Mini Game UDP bridge hooks.
 
 ## Install
 
@@ -35,12 +35,12 @@ Or add to `Packages/manifest.json`:
 | Platform | Transport |
 |----------|-----------|
 | Editor / Standalone / Mobile | `QcpNativeUdpTransport` placeholder for native QCP UDP binding |
-| WebGL | `QcpWebGLTransport` through `Runtime/Plugins/WebGL/QCPWebGL.jslib` |
-| WeChat Mini Game | same JS bridge shape; replace the JavaScript internals with WX socket APIs when packaging |
+| Browser WebGL | Unsupported for QCP transport because standard browser WebGL does not expose UDP |
+| WeChat Mini Game | `QcpWeChatMiniGameTransport` through `wx.createUDPSocket` in `Runtime/Plugins/WebGL/QCPWebGL.jslib` |
 
-WebGL and WeChat Mini Game builds cannot use raw UDP. The `.jslib` bridge is intentionally isolated behind `IQcpTransport`, so the protocol-facing C# API does not change when the platform bridge is swapped.
+This package is QCP-only. It does not fall back to TCP or WebSocket. If the runtime does not expose datagram UDP, the transport fails fast instead of silently changing protocol behavior.
 
-For WeChat Mini Game packaging, keep the C# API and exported `QCP_JS_*` names stable, then swap the body of `QCPWebGL.jslib` to call the platform socket implementation provided by the WeChat Unity adapter.
+For WeChat Mini Game packaging, keep the C# API and exported `QCP_WX_*` names stable. The bridge calls `wx.createUDPSocket`; if that API is unavailable on the target runtime, QCP is unsupported on that build target.
 
 ## Usage
 
@@ -49,7 +49,7 @@ using System.Text;
 using Neko233.Qcp.Unity;
 
 var client = QcpClient.CreateDefault();
-await client.ConnectAsync("wss://example.com/qcp");
+await client.ConnectAsync("qcp://example.com:7000");
 
 await client.SendAsync(
     Encoding.UTF8.GetBytes("move:1,2,3"),
@@ -67,4 +67,5 @@ await client.SendAsync(
 - Use `Realtime` for high-frequency state; do not enqueue old movement packets.
 - Use `Critical` for combat commands and hit events with a deadline.
 - Use `Batch` for reliable non-frame-critical data.
-- WebGL / WeChat transport code must be selected at build time through Unity plugin import settings.
+- WeChat Mini Game must expose `wx.createUDPSocket`; there is no TCP / WebSocket fallback.
+- Keep payloads below the platform profile `MaxPayloadBytes` value so QCP can avoid fragmentation on mobile networks.

@@ -83,4 +83,43 @@ namespace Neko233.Qcp.Unity
         public ulong Sequence { get; }
         public byte PathId { get; }
     }
+
+    public enum QcpPlatformKind : byte
+    {
+        Native = 0,
+        WebGL = 1,
+        WeChatMiniGame = 2
+    }
+
+    public enum QcpTransportKind : byte
+    {
+        NativeUdp = 0,
+        WeChatUdp = 1,
+        Unsupported = 255
+    }
+
+    [Flags]
+    public enum QcpTransportCapabilities : ushort
+    {
+        None = 0,
+        Datagram = 1 << 0,
+        RawUdp = 1 << 1,
+        LowAllocation = 1 << 2
+    }
+
+    public readonly struct QcpPlatformProfile
+    {
+        public QcpPlatformProfile(QcpPlatformKind platform, QcpTransportKind preferredTransport, QcpTransportCapabilities capabilities, int maxPayloadBytes)
+        {
+            Platform = platform;
+            PreferredTransport = preferredTransport;
+            Capabilities = capabilities;
+            MaxPayloadBytes = maxPayloadBytes;
+        }
+
+        public QcpPlatformKind Platform { get; }
+        public QcpTransportKind PreferredTransport { get; }
+        public QcpTransportCapabilities Capabilities { get; }
+        public int MaxPayloadBytes { get; }
+    }
 }
